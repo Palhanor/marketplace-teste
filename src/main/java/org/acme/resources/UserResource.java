@@ -1,34 +1,43 @@
-// É onde são configurados os endpoints, acessando o Service para pegar os dados do DB
 package org.acme.resources;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.acme.entities.User;
+import jakarta.ws.rs.core.Request;
+import jakarta.ws.rs.core.Response;
 import org.acme.services.UserService;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import java.util.Set;
-import java.util.Optional;
+import java.util.UUID;
 
 @Path("/users")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Usuarios")
 public class UserResource {
 
     @Inject
     private UserService userService;
-
-    @GET()
-    @Produces(MediaType.APPLICATION_JSON)
-    public Set<User> getUsers() {
-        return this.userService.getUsers();
+    @GET
+    @Operation(summary = "Retorna lista de usuários", description = "Retorna a lista contendo todos os usuários do sistema")
+    public Response getUsers() {
+        return Response.ok(this.userService.getUsers()).build();
     }
 
     @GET
-    @Path("/{name}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Optional<User> getUser(String name) {
-        return this.userService.getUser(name);
+    @Path("/{id}")
+    @Operation(summary = "Retorna um usuário específico", description = "Retorna os dados de um único usuário considerando o seu nome informado")
+    public Response getUser(UUID id) {
+        return Response.ok(this.userService.getUser(id)).build();
     }
+
+    @POST
+    @Operation(summary = "Adiciona um novo usuário", description = "Faz a inscrição no banco de dados")
+    public Response postUser(Request request) {
+        System.out.println(request);
+        return Response.ok().build();
+    }
+
 
 }

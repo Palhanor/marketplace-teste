@@ -1,35 +1,34 @@
-// Services tem como objetivo fazer a conexão com o banco de dados e retornar seus dados
 package org.acme.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.acme.entities.User;
+import org.acme.repositories.UserRepository;
 
-import java.util.Set;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.UUID;
-import java.util.Optional;
+import java.util.*;
 
 @ApplicationScoped
+@Transactional
 public class UserService {
 
-    private final Set<User> users = Collections.synchronizedSet(new LinkedHashSet<>());
-    public Set<User> getUsers() {
+    // @PersistenceContext
+    // EntityManager entityManager;
 
-        if (this.users.size() == 0) {
-            this.users.add(new User(UUID.randomUUID(), "Marcos", 52));
-            this.users.add(new User(UUID.randomUUID(), "Junior", 24));
-            this.users.add(new User(UUID.randomUUID(), "Victor", 31));
-            this.users.add(new User(UUID.randomUUID(), "Lucas", 27));
-        }
+    @Inject
+    UserRepository userRepository;
 
-        return this.users;
+    public List<User> getUsers() {
+        return userRepository.listAll();
     }
 
-    public Optional<User> getUser(String name) {
+    public User getUser(UUID id) {
+        return userRepository.findById(id);
+    }
 
-        var findUser = this.users.stream().filter(
-                user -> user.getName().equals(name));
-        return findUser.findFirst();
+    public UUID addUser() {
+        User user = new User();
+        userRepository.persist(user);
+        return user.getId();
     }
 }
